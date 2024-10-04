@@ -12,13 +12,13 @@ To run the project, you will need to install the following programs:
 ### Installing
 Clone the repository
 ```
-    git clone https://github.com/gabriellrocha/currency-converter.git
+git clone https://github.com/gabriellrocha/currency-converter.git
 ```
 Or download the zip by clicking [here](https://github.com/gabriellrocha/currency-converter/archive/refs/heads/main.zip).
 If you choose .zip, remember to unzip it.
 
 ### Build
-Navigate to the root folder `.\currency-converter` and type in CMD:
+Navigate to the root folder `.\currency-converter` and type:
 ```
 mvn clean install 
 ```
@@ -27,7 +27,6 @@ In the same directory run:
 
 ```
 java -jar .\target\currency-converter.jar
-
 ```
 Everything going as expected you will see the following message in the terminal
 
