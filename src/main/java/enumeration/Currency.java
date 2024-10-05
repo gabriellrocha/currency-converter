@@ -1,5 +1,7 @@
 package enumeration;
 
+import exception.InvalidOptionException;
+
 public enum Currency {
 
     // UTF-8
@@ -15,7 +17,7 @@ public enum Currency {
     private final String symbol;
 
 
-    public static void showCurrency() {
+    public static void display() {
         for (int i=0; i< Currency.values().length; i++) {
             System.out.println(i+1 + " - " + Currency.values()[i] + " " + Currency.values()[i].getCountry());
         }
@@ -32,5 +34,14 @@ public enum Currency {
 
     public String getSymbol() {
         return symbol;
+    }
+
+    public static Currency fromInt(int value) throws InvalidOptionException {
+        for (Currency currency : Currency.values()) {
+            if (currency.ordinal() == value) {
+                return currency;
+            }
+        }
+        throw new InvalidOptionException();
     }
 }

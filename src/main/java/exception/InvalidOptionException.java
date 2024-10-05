@@ -2,7 +2,7 @@ package exception;
 
 public class InvalidOptionException extends Exception {
 
-    public InvalidOptionException(String message) {
-        super(message);
+    public InvalidOptionException() {
+        super("Invalid Option\n");
     }
 }

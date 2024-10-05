@@ -1,8 +1,9 @@
 package service;
 
 import com.google.gson.Gson;
-import dto.Exchange;
+import model.dto.ExchangeDTO;
 import enumeration.Currency;
+import exception.HttpClientErrorException;
 import exception.InvalidOptionException;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.time.Duration;
 public class HttpClientService {
 
     private static HttpClient client;
+    private static final Gson gson = new Gson();
 
     public HttpClientService() {
 
@@ -23,7 +25,7 @@ public class HttpClientService {
                 .build();
     }
 
-    public Exchange sendGetRequest(Currency baseCurrency, Currency targetCurrency, String amount) throws IOException, InterruptedException, InvalidOptionException {
+    public ExchangeDTO sendGetRequest(Currency baseCurrency, Currency targetCurrency, String amount) throws IOException, InterruptedException, InvalidOptionException, HttpClientErrorException {
 
         URI uri = URI.create("https://v6.exchangerate-api.com/v6/8367040237e31577f413e8cf/pair/" +
                 baseCurrency +
@@ -42,10 +44,10 @@ public class HttpClientService {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         if(response.statusCode() != 200) {
-            throw new InvalidOptionException("Erro. Status Code " + response.statusCode());
+            throw new HttpClientErrorException(response);
         }
 
-        return new Gson().fromJson(response.body(), Exchange.class);
+        return gson.fromJson(response.body(), ExchangeDTO.class);
 
     }
 }

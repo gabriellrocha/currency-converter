@@ -1,92 +1,109 @@
 package view;
 
-import dto.Exchange;
+import model.Exchange;
+import model.dto.ExchangeDTO;
 import enumeration.Currency;
+import enumeration.Option;
+import exception.HttpClientErrorException;
 import exception.InvalidOptionException;
 import service.HttpClientService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ConsoleIO {
 
+    private static boolean running = true;
     private static final HttpClientService service = new HttpClientService();
+    private static final List<Exchange> historic = new ArrayList<>();
 
     public static void start() {
-        boolean run = true;
 
-        printWelcome();
-        Currency.showCurrency();
+        System.out.println("\n\t\tWelcome to the currency converter\n" + "*".repeat(50));
 
-        do {
+
+        while (ConsoleIO.running) {
+
             try {
-                System.out.println("\nEnter the base currency for the exchange (0 to exit) ");
-                int option = optionNumber();
+                Option.display();
+                System.out.println("\nEnter an option: ");
+                Option option = Option.fromInt(readInt());
 
-                if(option == 0) {
-                    break;
+                switch (option) {
+
+                    case ZERO -> {
+                        toggleRunning();
+                    }
+
+                    case ONE -> {
+                        Currency.display();
+                        System.out.println("\nEnter the number that corresponds to the base currency: ");
+                        Currency currencyBase = Currency.fromInt(readInt() - 1);
+
+                        System.out.println("Enter the number for the currency you want to convert to: ");
+                        Currency currencyTarget = Currency.fromInt(readInt() - 1);
+                        String amount = getAmount();
+
+                        ExchangeDTO dto = service.sendGetRequest(currencyBase, currencyTarget, amount);
+                        historic.add(new Exchange(dto));
+                        System.out.println(historic.get(historic.size()-1));
+                    }
+
+                    case TWO -> displayHistoric();
                 }
 
-                Currency currencyBase = getCurrency(option -1);
 
-                System.out.println("Enter the target currency: ");
-                option = optionNumber();
-                Currency currencyTarget = getCurrency(option -1 );
-
-
-                System.out.println("Enter the amount: ");
-                BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-                String amount = bf.readLine().trim();
-                if (amount.contains(",")){
-                    amount = amount.replace(",", ".");
-                }
-
-                Exchange exchange = service.sendGetRequest(currencyBase, currencyTarget, amount);
-                System.out.println(exchange);
-
-            } catch (InvalidOptionException e) {
+            } catch (InvalidOptionException | HttpClientErrorException e) {
                 System.err.println(e.getMessage());
 
             } catch (IOException | InterruptedException e) {
                 System.out.println("Error contact support");
-                run = false;
+                toggleRunning();
             }
-
-        } while (run);
+        }
 
         System.out.println("Thank you for using this application!");
     }
 
 
-    private static void printWelcome() {
-        String welcome = """
-                \t\tWelcome to the currency converter
-                """;
-
-        System.out.print(welcome);
-        System.out.println("_".repeat(55));
-    }
-
-    private static Currency getCurrency(int number) throws InvalidOptionException {
-
-        try {
-            return Currency.values()[number];
-
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new InvalidOptionException("Invalid Option. Please, choose one of the available options");
-        }
-    }
-
-    private static int optionNumber() throws IOException, InvalidOptionException {
+    private static int readInt() throws IOException, InvalidOptionException {
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+
         try {
-            return Integer.parseInt(bufferedReader.readLine().trim());
+           return Integer.parseInt(bufferedReader.readLine().trim());
 
         } catch (NumberFormatException e) {
-            throw new InvalidOptionException("Only valid numbers");
+            throw new InvalidOptionException();
         }
     }
+
+    private static String getAmount() throws IOException {
+        System.out.println("Enter the amount: ");
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
+
+        String amount = bufferedReader.readLine();
+        if (amount.contains(",")) {
+            amount = amount.replace(",", ".");
+        }
+
+        return amount;
+    }
+
+    private static void displayHistoric() {
+        if (historic.isEmpty()) {
+            System.out.println("No registration\n");
+        }
+
+        historic.forEach(System.out::println);
+    }
+
+    private static void toggleRunning() {
+        ConsoleIO.running = !running;
+    }
+
 }
