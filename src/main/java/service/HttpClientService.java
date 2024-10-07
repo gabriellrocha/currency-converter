@@ -1,6 +1,7 @@
 package service;
 
 import com.google.gson.Gson;
+import configuration.Config;
 import model.dto.ExchangeDTO;
 import enumeration.Currency;
 import exception.HttpClientErrorException;
@@ -27,7 +28,11 @@ public class HttpClientService {
 
     public ExchangeDTO sendGetRequest(Currency baseCurrency, Currency targetCurrency, String amount) throws IOException, InterruptedException, InvalidOptionException, HttpClientErrorException {
 
-        URI uri = URI.create("https://v6.exchangerate-api.com/v6/8367040237e31577f413e8cf/pair/" +
+        String key = Config.getKey();
+
+        URI uri = URI.create("https://v6.exchangerate-api.com/v6/" +
+                key +
+                "/pair/" +
                 baseCurrency +
                 "/" +
                 targetCurrency +

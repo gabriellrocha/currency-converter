@@ -1,5 +1,7 @@
 package view;
 
+import configuration.Config;
+import exception.InvalidAPIException;
 import model.Exchange;
 import model.dto.ExchangeDTO;
 import enumeration.Currency;
@@ -21,9 +23,11 @@ public class ConsoleIO {
     private static final HttpClientService service = new HttpClientService();
     private static final List<Exchange> historic = new ArrayList<>();
 
-    public static void start() {
+    public static void start() throws IOException, InterruptedException, InvalidAPIException {
 
-        System.out.println("\n\t\tWelcome to the currency converter\n" + "*".repeat(50));
+        Config.isValidKey();
+
+        System.out.println("\n\tWelcome to the currency converter\n" + "*".repeat(50));
 
 
         while (ConsoleIO.running) {
